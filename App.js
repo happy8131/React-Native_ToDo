@@ -1,35 +1,54 @@
 import { StatusBar } from "expo-status-bar";
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   StyleSheet,
   Text,
   View,
   TouchableOpacity,
   TextInput,
+  Alert,
   ScrollView,
 } from "react-native";
+import { Fontisto } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { theme } from "./colors";
+
+const STORAGE_KEY = "@toDos";
 
 export default function App() {
   const [working, setWorking] = useState(true);
   const [text, setText] = useState("");
   const [toDos, setToDos] = useState({});
+  useEffect(() => {
+    loadToDos();
+  }, []);
+
   const travel = () => setWorking(false);
   const work = () => setWorking(true);
   const onChaangeText = (payload) => setText(payload);
-  const addToDo = () => {
+  const saveToDos = async (toSave) => {
+    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+  };
+  const loadToDos = async () => {
+    const s = await AsyncStorage.getItem(STORAGE_KEY);
+    setToDos(JSON.parse(s));
+  };
+
+  const addToDo = async () => {
     if (text === "") {
       return;
     }
     //save to do
     const newToDos = {
       ...toDos,
-      [Date.now()]: { text, work: working },
+      [Date.now()]: { text, working },
     };
     setToDos(newToDos);
+    await saveToDos(newToDos);
     setText("");
   };
   console.log(toDos);
+  const deleteToDo = (key) => {};
   return (
     <View style={styles.container}>
       <StatusBar style="auto" />
@@ -58,15 +77,22 @@ export default function App() {
         onChangeText={onChaangeText}
         returnKeyType="done"
         value={text}
-        placeholder={working ? "Add a To Do" : "Where do you want to go?"}
+        placeholder={
+          working ? "What do you have to do?" : "Where do you want to go?"
+        }
         style={styles.input}
       />
       <ScrollView>
-        {Object.keys(toDos).map((key) => (
-          <View style={styles.toDo} key={key}>
-            <Text style={styles.toDoText}>{toDos[key].text}</Text>
-          </View>
-        ))}
+        {Object.keys(toDos).map((key) =>
+          toDos[key].working === working ? (
+            <View style={styles.toDo} key={key}>
+              <Text style={styles.toDoText}>{toDos[key].text}</Text>
+              <TouchableOpacity onPress={() => deleteToDo(key)}>
+                <Text>X</Text>
+              </TouchableOpacity>
+            </View>
+          ) : null
+        )}
       </ScrollView>
     </View>
   );
@@ -97,16 +123,18 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
   toDo: {
-    backgroundColor: theme.grey,
-
+    backgroundColor: theme.toDoBg,
     marginBottom: 10,
     paddingVertical: 20,
     paddingHorizontal: 20,
     borderRadius: 15,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   toDoText: {
     color: "white",
     fontSize: 16,
-    fontWeight: "500",
+    fontWeight: "600",
   },
 });
