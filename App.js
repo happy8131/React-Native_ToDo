@@ -25,12 +25,12 @@ export default function App() {
 
   const travel = () => setWorking(false);
   const work = () => setWorking(true);
-  const onChaangeText = (payload) => setText(payload);
+  const onChangeText = (payload) => setText(payload);
   const saveToDos = async (toSave) => {
-    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(toSave)); //AsyncStorage 모바일을 위한 암호화되지 않은 string만 담을 수 있는 저장소. 로컬 저장소
   };
   const loadToDos = async () => {
-    const s = await AsyncStorage.getItem(STORAGE_KEY);
+    const s = await AsyncStorage.getItem(STORAGE_KEY); //AsyncStorage
     setToDos(JSON.parse(s));
   };
 
@@ -48,6 +48,7 @@ export default function App() {
     setText("");
   };
   console.log(toDos);
+
   const deleteToDo = (key) => {
     Alert.alert("Delete To Do", "Are you sure?", [
       { text: "Cancel" },
@@ -91,7 +92,7 @@ export default function App() {
 
       <TextInput
         onSubmitEditing={addToDo}
-        onChangeText={onChaangeText}
+        onChangeText={onChangeText}
         returnKeyType="done"
         value={text}
         placeholder={
@@ -114,7 +115,7 @@ export default function App() {
     </View>
   );
 }
-
+//onPress 손가락으로 같은 곳을 눌렀다 떼는 것, onChangeText는 text가 바뀔 때 실행되는 함수 , onSubmitEditing 은 done 버튼을 눌렀을 떄 실행되는 함수.
 const styles = StyleSheet.create({
   container: {
     flex: 1,
